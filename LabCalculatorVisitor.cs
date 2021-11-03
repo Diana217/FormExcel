@@ -7,10 +7,6 @@ namespace FormExcel
     class LabCalculatorVisitor : FormExcelBaseVisitor<double>
     {
         Dictionary<string, double> tableIdentifier = new Dictionary<string, double>();
-        /*private IEnumerable<string> Separate(string input)
-        {
-            throw new NotImplementedException();
-        }*/
         public override double VisitCompileUnit(FormExcelParser.CompileUnitContext context)
         {
             return Visit(context.expression());
@@ -89,7 +85,6 @@ namespace FormExcel
             {
                 return (int)left / (int)right;
             }
-            //return base.VisitMoDivExpr(context);
         }
         public override double VisitUnaryPExpr(FormExcelParser.UnaryPExprContext context)
         {
