@@ -1,6 +1,6 @@
 ﻿namespace FormExcel
 {
-    // struct for comfortable using of index like A1, BB3 and so on
+    // struct for using index
     public struct TheIndex
     {
         public int row;
