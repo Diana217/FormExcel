@@ -87,16 +87,6 @@ namespace FormExcel
 
         }
 
-        /*private void dataGridView_CellClick_1(object sender, DataGridViewCellEventArgs e)
-        {
-            int columns = dataGridView.SelectedCells[0].ColumnIndex;
-            int row = dataGridView.SelectedCells[0].RowIndex;
-            string expression = Table.border[row][columns].Exp;
-            string value = Table.border[row][columns].Value;
-            textBoxFE.Text = expression;
-            textBoxFE.Focus();
-        }*/
-
 		private void btnAddRow_Click(object sender, EventArgs e)
 		{
             DataGridViewRow row = new System.Windows.Forms.DataGridViewRow();
