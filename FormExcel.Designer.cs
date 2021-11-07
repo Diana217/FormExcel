@@ -1,4 +1,3 @@
-﻿
 namespace FormExcel
 {
 	partial class FormExcel
@@ -11,7 +10,7 @@ namespace FormExcel
 		/// <summary>
 		///  Clean up any resources being used.
 		/// </summary>
-		/// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+		/// <param Name="disposing">true if managed resources should be disposed; otherwise, false.</param>
 		protected override void Dispose(bool disposing)
 		{
 			if (disposing && (components != null))
@@ -41,7 +40,8 @@ namespace FormExcel
 			this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.saveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-			this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.infoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.exitStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
 			this.saveFileDialog = new System.Windows.Forms.SaveFileDialog();
 			((System.ComponentModel.ISupportInitialize)(this.dataGridView)).BeginInit();
@@ -50,14 +50,17 @@ namespace FormExcel
 			// 
 			// dataGridView
 			// 
+			this.dataGridView.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
 			this.dataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-			this.dataGridView.Location = new System.Drawing.Point(0, 100);
+			this.dataGridView.Location = new System.Drawing.Point(13, 100);
 			this.dataGridView.Name = "dataGridView";
 			this.dataGridView.RowHeadersWidth = 51;
 			this.dataGridView.RowTemplate.Height = 29;
-			this.dataGridView.Size = new System.Drawing.Size(1145, 367);
+			this.dataGridView.Size = new System.Drawing.Size(1289, 355);
 			this.dataGridView.TabIndex = 0;
-			this.dataGridView.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView_CellContentClick);
+			this.dataGridView.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView_CellClick);
 			// 
 			// btnAddRow
 			// 
@@ -106,9 +109,9 @@ namespace FormExcel
 			// btnCalculate
 			// 
 			this.btnCalculate.BackColor = System.Drawing.SystemColors.Control;
-			this.btnCalculate.Location = new System.Drawing.Point(888, 25);
+			this.btnCalculate.Location = new System.Drawing.Point(1135, 45);
 			this.btnCalculate.Name = "btnCalculate";
-			this.btnCalculate.Size = new System.Drawing.Size(164, 36);
+			this.btnCalculate.Size = new System.Drawing.Size(167, 42);
 			this.btnCalculate.TabIndex = 5;
 			this.btnCalculate.Text = "Порахувати";
 			this.btnCalculate.UseVisualStyleBackColor = false;
@@ -116,7 +119,7 @@ namespace FormExcel
 			// 
 			// textBoxFE
 			// 
-			this.textBoxFE.Location = new System.Drawing.Point(855, 67);
+			this.textBoxFE.Location = new System.Drawing.Point(866, 53);
 			this.textBoxFE.Name = "textBoxFE";
 			this.textBoxFE.Size = new System.Drawing.Size(223, 27);
 			this.textBoxFE.TabIndex = 6;
@@ -128,7 +131,7 @@ namespace FormExcel
             this.FileTool});
 			this.menuStrip.Location = new System.Drawing.Point(0, 0);
 			this.menuStrip.Name = "menuStrip";
-			this.menuStrip.Size = new System.Drawing.Size(1145, 28);
+			this.menuStrip.Size = new System.Drawing.Size(1314, 28);
 			this.menuStrip.TabIndex = 7;
 			this.menuStrip.Text = "menuStrip1";
 			// 
@@ -138,7 +141,8 @@ namespace FormExcel
             this.openToolStripMenuItem,
             this.saveToolStripMenuItem,
             this.helpToolStripMenuItem,
-            this.exitToolStripMenuItem});
+            this.infoToolStripMenuItem,
+            this.exitStripMenuItem});
 			this.FileTool.Name = "FileTool";
 			this.FileTool.Size = new System.Drawing.Size(59, 24);
 			this.FileTool.Text = "Файл";
@@ -146,30 +150,37 @@ namespace FormExcel
 			// openToolStripMenuItem
 			// 
 			this.openToolStripMenuItem.Name = "openToolStripMenuItem";
-			this.openToolStripMenuItem.Size = new System.Drawing.Size(163, 26);
+			this.openToolStripMenuItem.Size = new System.Drawing.Size(193, 26);
 			this.openToolStripMenuItem.Text = "Відкрити";
 			this.openToolStripMenuItem.Click += new System.EventHandler(this.openToolStripMenuItem_Click_1);
 			// 
 			// saveToolStripMenuItem
 			// 
 			this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
-			this.saveToolStripMenuItem.Size = new System.Drawing.Size(163, 26);
+			this.saveToolStripMenuItem.Size = new System.Drawing.Size(193, 26);
 			this.saveToolStripMenuItem.Text = "Зберегти";
 			this.saveToolStripMenuItem.Click += new System.EventHandler(this.saveToolStripMenuItem_Click_1);
 			// 
 			// helpToolStripMenuItem
 			// 
 			this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
-			this.helpToolStripMenuItem.Size = new System.Drawing.Size(163, 26);
+			this.helpToolStripMenuItem.Size = new System.Drawing.Size(193, 26);
 			this.helpToolStripMenuItem.Text = "Допомога";
 			this.helpToolStripMenuItem.Click += new System.EventHandler(this.helpToolStripMenuItem_Click_1);
 			// 
-			// exitToolStripMenuItem
+			// infoToolStripMenuItem
 			// 
-			this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-			this.exitToolStripMenuItem.Size = new System.Drawing.Size(163, 26);
-			this.exitToolStripMenuItem.Text = "Вийти";
-			this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click_1);
+			this.infoToolStripMenuItem.Name = "infoToolStripMenuItem";
+			this.infoToolStripMenuItem.Size = new System.Drawing.Size(193, 26);
+			this.infoToolStripMenuItem.Text = "Про програму";
+			this.infoToolStripMenuItem.Click += new System.EventHandler(this.infoToolStripMenuItem_Click);
+			// 
+			// exitStripMenuItem
+			// 
+			this.exitStripMenuItem.Name = "exitStripMenuItem";
+			this.exitStripMenuItem.Size = new System.Drawing.Size(193, 26);
+			this.exitStripMenuItem.Text = "Вийти";
+			this.exitStripMenuItem.Click += new System.EventHandler(this.exitStripMenuItem_Click);
 			// 
 			// openFileDialog
 			// 
@@ -179,7 +190,7 @@ namespace FormExcel
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(1145, 467);
+			this.ClientSize = new System.Drawing.Size(1314, 467);
 			this.Controls.Add(this.textBoxFE);
 			this.Controls.Add(this.btnCalculate);
 			this.Controls.Add(this.btnDeleteColumn);
@@ -214,9 +225,9 @@ namespace FormExcel
 		private System.Windows.Forms.ToolStripMenuItem openToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem saveToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem helpToolStripMenuItem;
-		private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem infoToolStripMenuItem;
 		private System.Windows.Forms.OpenFileDialog openFileDialog;
 		private System.Windows.Forms.SaveFileDialog saveFileDialog;
+		private System.Windows.Forms.ToolStripMenuItem exitStripMenuItem;
 	}
 }
-
