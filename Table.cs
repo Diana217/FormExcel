@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -8,34 +8,35 @@ namespace FormExcel
 {
     class Table
     {
-        private const int StartCol = 13;
-        private const int StartRow = 10;
+        private const int start_col = 14;
+        private const int start_row = 28;
 
         public int col_count;
         public int row_count;
 
         public static List<List<Cell>> border = new List<List<Cell>>();
         public Dictionary<string, string> dictionary = new Dictionary<string, string>();
+
+        private const string cellPattern = @"[A-Z]+[0-9]+";
+        Regex regex = new Regex(cellPattern, RegexOptions.IgnoreCase);
+
         public Table()
         {
-            col_count = StartCol;
-            row_count = StartRow;
-            for (int i = 0; i < row_count; ++i)
-            {
-                List<Cell> NewRow = new List<Cell>();
-                for (int j = 0; j < col_count; ++j)
-                {
-                    NewRow.Add(new Cell(i, j));
-                    dictionary.Add(NewRow.Last().Name, "");
-                }
-                border.Add(NewRow);
-            }
+            col_count = start_col;
+            row_count = start_row;
+            New_Row();
         }
+
         public void SetTable(int columns, int rows)
         {
             Clear();
             col_count = columns;
             row_count = rows;
+            New_Row();
+        }
+
+        public void New_Row()
+        {
             for (int i = 0; i < row_count; ++i)
             {
                 List<Cell> NewRow = new List<Cell>();
@@ -47,31 +48,29 @@ namespace FormExcel
                 border.Add(NewRow);
             }
         }
+
         public void Clear()
         {
-            foreach (List<Cell> list in border)
-            {
-                list.Clear();
-            }
             border.Clear();
             dictionary.Clear();
             row_count = 0;
             col_count = 0;
         }
 
-        public void ChangeCellWithAllPointers(int row, int column, string expression, System.Windows.Forms.DataGridView dataGridView)
+        public void ChangeCellWithAllPointers(int row, int column, string expression, DataGridView dataGridView)
         {
-            border[row][column].DeletePointersAndReferences();
-            border[row][column].Exp = expression;
-            border[row][column].new_references.Clear();
+            var borderi = border[row][column];
+            borderi.DeletePointersAndReferences();
+            borderi.Expression = expression;
+            borderi.new_references.Clear();
 
-            if (expression != "")
+            if (!string.IsNullOrWhiteSpace(expression))
             {
                 if (expression[0] != '=')
                 {
-                    border[row][column].Value = expression;
+                    borderi.Value = expression;
                     dictionary[FullName(row, column)] = expression;
-                    foreach (Cell cell in border[row][column].pointer)
+                    foreach (Cell cell in borderi.pointer)
                     {
                         RefreshCellAndPointers(cell, dataGridView);
                     }
@@ -81,57 +80,61 @@ namespace FormExcel
 
             string new_expression = ConvertReferences(row, column, expression);
 
-            if (new_expression != "")
+            if (!string.IsNullOrWhiteSpace(new_expression))
             {
                 new_expression = new_expression.Remove(0, 1);
             }
 
-            if (!border[row][column].CheckLoop(border[row][column].new_references))
+            if (!borderi.CheckLoop(borderi.new_references))
             {
-                System.Windows.Forms.MessageBox.Show("Помилка! Будь ласка, змініть свій вираз.");
-                border[row][column].Exp = "";
-                border[row][column].Value = "0";
+                MessageBox.Show("Помилка! Будь ласка, змініть свій вираз.");
+                borderi.Expression = "";
+                borderi.Value = "0";
                 dataGridView[column, row].Value = "0";
                 return;
             }
 
-            border[row][column].AddPointersAndReferences();
+            borderi.AddPointersAndReferences();
             string value = Calculate(new_expression);
-            if (value == "помилка")
+            if (value == "error")
             {
-                System.Windows.Forms.MessageBox.Show("Помилка в клітинці - " + FullName(row, column));
-                border[row][column].Exp = "";
-                border[row][column].Value = "0";
+                MessageBox.Show("Помилка в клітинці - " + FullName(row, column));
+                borderi.Expression = "";
+                borderi.Value = "0";
                 dataGridView[column, row].Value = "0";
                 return;
             }
 
-            border[row][column].Value = value;
+            borderi.Value = value;
             dictionary[FullName(row, column)] = value;
-            foreach (Cell cell in border[row][column].pointer)
+            foreach (Cell cell in borderi.pointer)
+            {
                 RefreshCellAndPointers(cell, dataGridView);
+            }
         }
+
         private string FullName(int row, int column)
         {
             Cell cell = new Cell(row, column);
             return cell.Name;
         }
-        public bool RefreshCellAndPointers(Cell cell, System.Windows.Forms.DataGridView dataGridView)
+
+        public bool RefreshCellAndPointers(Cell cell, DataGridView dataGridView)
         {
             cell.new_references.Clear();
-            string new_expression = ConvertReferences(cell.Row, cell.Сolumn, cell.Exp);
+            string new_expression = ConvertReferences(cell.Row, cell.Column, cell.Expression);
             new_expression = new_expression.Remove(0, 1);
-            string Value = Calculate(new_expression);
+            string value = Calculate(new_expression);
 
-            if (Value == "помилка")
+            if (value == "error")
             {
-                System.Windows.Forms.MessageBox.Show("Помилка в клітинці - " + cell.Name);
+                MessageBox.Show("Помилка в клітинці - " + cell.Name);
                 return false;
             }
 
-            border[cell.Row][cell.Сolumn].Value = Value;
-            dictionary[FullName(cell.Row, cell.Сolumn)] = Value;
-            dataGridView[cell.Сolumn, cell.Row].Value = Value;
+            border[cell.Row][cell.Column].Value = value;
+            dictionary[FullName(cell.Row, cell.Column)] = value;
+            dataGridView[cell.Column, cell.Row].Value = value;
 
             foreach (Cell point in cell.pointer)
             {
@@ -140,10 +143,9 @@ namespace FormExcel
             }
             return true;
         }
+
         public string ConvertReferences(int row, int column, string expression)
         {
-            string cellPattern = @"[A-Z]+[0-9]+";
-            Regex regex = new Regex(cellPattern, RegexOptions.IgnoreCase);
             TheIndex nums;
 
             foreach (Match match in regex.Matches(expression))
@@ -162,20 +164,22 @@ namespace FormExcel
 
         public string ReferencesToValue(Match m)
         {
-            if (dictionary.ContainsKey(m.Value))
-                if (dictionary[m.Value] == "")
+            string value;
+            if (dictionary.TryGetValue(m.Value, out value))
+            {
+                if(value == "")
                     return "0";
                 else
                     return dictionary[m.Value];
+            }
             return m.Value;
         }
 
         public string Calculate(string expression)
         {
-            string result = null;
             try
             {
-                result = Convert.ToString(Calculator.Evaluate(expression));
+                var result = Convert.ToString(Calculator.Evaluate(expression));
                 if (result == "∞")
                 {
                     MessageBox.Show("Помилка! Ділення на нуль!");
@@ -199,19 +203,17 @@ namespace FormExcel
                         cell.references.Clear();
                     if (cell.new_references != null)
                         cell.new_references.Clear();
-                    if (cell.Exp == "")
+                    if (cell.Expression == "")
                         continue;
-                    string new_expression = cell.Exp;
-                    if (cell.Exp[0] == '=')
+                    if (cell.Expression[0] == '=')
                     {
-                        new_expression = ConvertReferences(cell.Row, cell.Сolumn, cell.Exp);
                         cell.references.AddRange(cell.new_references);
                     }
                 }
             }
         }
 
-        public void AddRow(System.Windows.Forms.DataGridView dataGridView)
+        public void AddRow(DataGridView dataGridView)
         {
             List<Cell> newRow = new List<Cell>();
 
@@ -246,10 +248,8 @@ namespace FormExcel
             row_count++;
         }
 
-        public void AddColumn(System.Windows.Forms.DataGridView dataGridView)
+        public void AddColumn(DataGridView dataGridView)
         {
-            List<Cell> newCol = new List<Cell>();
-
             for (int i = 0; i < row_count; i++)
             {
                 string name = FullName(i, col_count);
@@ -266,7 +266,7 @@ namespace FormExcel
                     {
                         foreach (Cell cell_ref in cell.references)
                         {
-                            if (cell_ref.Сolumn == col_count)
+                            if (cell_ref.Column == col_count)
                             {
                                 if (!cell_ref.pointer.Contains(cell))
                                     cell_ref.pointer.Add(cell);
@@ -282,7 +282,7 @@ namespace FormExcel
             col_count++;
         }
 
-        public bool DeleteRow(System.Windows.Forms.DataGridView dataGridView)
+        public bool DeleteRow(DataGridView dataGridView)
         {
             List<Cell> lastRow = new List<Cell>();
             List<string> notEmptyCells = new List<string>();
@@ -295,8 +295,9 @@ namespace FormExcel
             for (int i = 0; i < col_count; i++)
             {
                 string name = FullName(curCount, i);
+                var dictionary_name = dictionary[name];
 
-                if (dictionary[name] != "0" && dictionary[name] != "" && dictionary[name] != " ")
+                if (dictionary_name != "0" && !string.IsNullOrWhiteSpace(dictionary_name))
                     notEmptyCells.Add(name);
                 if (border[curCount][i].pointer.Count != 0)
                     lastRow.AddRange(border[curCount][i].pointer);
@@ -308,9 +309,7 @@ namespace FormExcel
 
                 if (notEmptyCells.Count != 0)
                 {
-                    errorMessage = "Немає порожніх клітинок: ";
-                    errorMessage += string.Join(";", notEmptyCells.ToArray());
-                    errorMessage += ' ';
+                    errorMessage = $"Немає порожніх клітинок: {string.Join(";", notEmptyCells.ToArray())} ";
                 }
 
                 if (lastRow.Count != 0)
@@ -318,15 +317,14 @@ namespace FormExcel
                     errorMessage += "Є клітинки, які вказують на клітинки з поточного рядка : ";
                     foreach (Cell cell in lastRow)
                     {
-                        errorMessage += string.Join(";", cell.Name);
-                        errorMessage += " ";
+                        errorMessage += string.Join(";", cell.Name, " ");
                     }
                 }
 
                 errorMessage += "Ви впевнені, що хочете видалити цей рядок?";
-                System.Windows.Forms.DialogResult res = System.Windows.Forms.MessageBox.Show(errorMessage, "Увага", System.Windows.Forms.MessageBoxButtons.YesNo);
+                DialogResult res = MessageBox.Show(errorMessage, "Увага", MessageBoxButtons.YesNo);
 
-                if (res == System.Windows.Forms.DialogResult.No)
+                if (res == DialogResult.No)
                     return false;
             }
 
@@ -337,13 +335,15 @@ namespace FormExcel
             }
 
             foreach (Cell cell in lastRow)
+            {
                 RefreshCellAndPointers(cell, dataGridView);
+            }
             border.RemoveAt(curCount);
             row_count--;
             return true;
         }
 
-        public bool DeleteColumn(System.Windows.Forms.DataGridView dataGridView)
+        public bool DeleteColumn(DataGridView dataGridView)
         {
             List<Cell> lastCol = new List<Cell>();
             List<string> notEmptyCells = new List<string>();
@@ -356,7 +356,9 @@ namespace FormExcel
             for (int i = 0; i < row_count; i++)
             {
                 string name = FullName(i, curCount);
-                if (dictionary[name] != "0" && dictionary[name] != "" && dictionary[name] != " ")
+                var dictionary_name = dictionary[name];
+
+                if (dictionary_name != "0" && !string.IsNullOrWhiteSpace(dictionary_name))
                     notEmptyCells.Add(name);
                 if (border[i][curCount].pointer.Count != 0)
                     lastCol.AddRange(border[i][curCount].pointer);
@@ -368,8 +370,7 @@ namespace FormExcel
 
                 if (notEmptyCells.Count != 0)
                 {
-                    errorMessage = "Немає порожніх стовпчиків: ";
-                    errorMessage += string.Join(";", notEmptyCells.ToArray());
+                    errorMessage = $"Немає порожніх стовпчиків: {string.Join(";", notEmptyCells.ToArray())}";
                 }
 
                 if (lastCol.Count != 0)
@@ -380,9 +381,9 @@ namespace FormExcel
                 }
 
                 errorMessage += "Ви впевнені, що хочете видалити цей стовпчик?";
-                System.Windows.Forms.DialogResult res = System.Windows.Forms.MessageBox.Show(errorMessage, "Увага", System.Windows.Forms.MessageBoxButtons.YesNo);
+                DialogResult res = MessageBox.Show(errorMessage, "Увага", MessageBoxButtons.YesNo);
 
-                if (res == System.Windows.Forms.DialogResult.No)
+                if (res == DialogResult.No)
                     return false;
             }
 
@@ -403,77 +404,79 @@ namespace FormExcel
             col_count--;
             return true;
         }
-        public void Open(int r, int c, System.IO.StreamReader sr, System.Windows.Forms.DataGridView dataGridView)
+
+        public void Open(int r, int c, System.IO.StreamReader streamreader, DataGridView dataGridView)
         {
             for (int i = 0; i < r; i++)
             {
                 for (int j = 0; j < c; j++)
                 {
-                    string index = sr.ReadLine();
-                    string expression = sr.ReadLine();
-                    string value = sr.ReadLine();
+                    string index = streamreader.ReadLine();
+                    string expression = streamreader.ReadLine();
+                    string value = streamreader.ReadLine();
 
                     if (expression != "")
                         dictionary[index] = value;
                     else
                         dictionary[index] = "";
 
-                    int refCount = Convert.ToInt32(sr.ReadLine());
+                    int refCount = Convert.ToInt32(streamreader.ReadLine());
                     List<Cell> newRef = new List<Cell>();
                     string refer;
 
                     for (int k = 0; k < refCount; k++)
                     {
-                        refer = sr.ReadLine();
+                        refer = streamreader.ReadLine();
                         if (NumberCell.FromIndexSystem(refer).row < row_count && NumberCell.FromIndexSystem(refer).column < col_count)
                             newRef.Add(border[NumberCell.FromIndexSystem(refer).row][NumberCell.FromIndexSystem(refer).column]);
                     }
 
-                    int pointCount = Convert.ToInt32(sr.ReadLine());
+                    int pointCount = Convert.ToInt32(streamreader.ReadLine());
                     List<Cell> newPoint = new List<Cell>();
                     string point;
 
                     for (int k = 0; k < pointCount; k++)
                     {
-                        point = sr.ReadLine();
+                        point = streamreader.ReadLine();
                         newPoint.Add(border[NumberCell.FromIndexSystem(point).row][NumberCell.FromIndexSystem(point).column]);
                     }
                     border[i][j].SetCell(expression, value, newRef, newPoint);
 
-                    int curCol = border[i][j].Сolumn;
+                    int curCol = border[i][j].Column;
                     int curRow = border[i][j].Row;
                     dataGridView[curCol, curRow].Value = dictionary[index];
                 }
             }
         }
-        public void Save(System.IO.StreamWriter sw)
+
+        public void Save(System.IO.StreamWriter streamwriter)
         {
-            sw.WriteLine(row_count);
-            sw.WriteLine(col_count);
+            streamwriter.WriteLine(row_count);
+            streamwriter.WriteLine(col_count);
 
             foreach (List<Cell> list in border)
             {
                 foreach (Cell cell in list)
                 {
-                    sw.WriteLine(cell.Name);
-                    sw.WriteLine(cell.Exp);
-                    sw.WriteLine(cell.Value);
+                    streamwriter.WriteLine(cell.Name);
+                    streamwriter.WriteLine(cell.Expression);
+                    streamwriter.WriteLine(cell.Value);
 
                     if (cell.references == null)
-                        sw.WriteLine("0");
+                        streamwriter.WriteLine("0");
                     else
                     {
-                        sw.WriteLine(cell.references.Count);
+                        streamwriter.WriteLine(cell.references.Count);
                         foreach (Cell refCell in cell.references)
-                            sw.WriteLine(refCell.Name);
+                            streamwriter.WriteLine(refCell.Name);
                     }
                     if (cell.pointer == null)
-                        sw.WriteLine("0");
+                        streamwriter.WriteLine("0");
                     else
                     {
-                        sw.WriteLine(cell.pointer.Count);
+                        streamwriter.WriteLine(cell.pointer.Count);
                         foreach (Cell pointCell in cell.pointer)
-                            sw.WriteLine(pointCell.Name);
+                            streamwriter.WriteLine(pointCell.Name);
                     }
                 }
             }
