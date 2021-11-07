@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace FormExcel
@@ -11,24 +11,24 @@ namespace FormExcel
 		public Cell(int rows, int columns)
 		{
 			Row = rows;
-			Сolumn = columns;
+			Column = columns;
 			Name = NumberCell.ToIndexSystem(columns) + Convert.ToString(rows);
 			Value = "0";
-			Exp = "";
+			Expression = "";
 		}
 		public string Name { get; set; }
 		public string Value { get; set; }
-		public string Exp { get; set; }
-		public int Сolumn { get; set; }
+		public string Expression { get; set; }
+		public int Column { get; set; }
 		public int Row { get; set; }
 		public void SetCell(string exp, string val, List<Cell> a, List<Cell> b)
 		{
-			this.Value = val;
-			this.Exp = exp;
-			this.references.Clear();
-			this.references.AddRange(a);
-			this.pointer.Clear();
-			this.pointer.AddRange(b);
+			Value = val;
+			Expression = exp;
+			references.Clear();
+			references.AddRange(a);
+			pointer.Clear();
+			pointer.AddRange(b);
 		}
 		public bool CheckLoop(List<Cell> list)
 		{
@@ -73,4 +73,3 @@ namespace FormExcel
 		}
 	}
 }
-
